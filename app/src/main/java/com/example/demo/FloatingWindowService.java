@@ -226,7 +226,7 @@ public class FloatingWindowService extends Service {
             } else {
                 // 非选取模式：缩小窗口到工具栏大小，底层应用可操作
                 layoutParams.width = 200;
-                layoutParams.height = 700;
+                layoutParams.height = 500;
                 layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | 
                                     WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL |
                                     WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN;

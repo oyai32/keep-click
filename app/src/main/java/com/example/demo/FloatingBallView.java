@@ -172,49 +172,6 @@ public class FloatingBallView extends View {
         
         // 绘制按钮
         drawToolbarButtons(canvas, toolbarWidth, toolbarHeight);
-        
-        // 绘制穿透状态（调试用）
-        drawPenetrationStatus(canvas);
-    }
-    
-    private void drawPenetrationStatus(Canvas canvas) {
-        Paint statusPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        statusPaint.setColor(Color.WHITE);
-        statusPaint.setTextSize(14);
-        statusPaint.setTextAlign(Paint.Align.LEFT);
-        
-        int leftMargin = 10; // 左边距
-        int topMargin = 10; // 上边距
-        
-        // 在工具栏顶部显示状态信息
-        int currentY = topMargin;
-        
-        // 第一行：穿透状态（调试用）
-        String status = isSelectionMode ? "穿透:关" : "穿透:开";
-        canvas.drawText(status, leftMargin, currentY, statusPaint);
-        currentY += 20;
-        
-        // 第二行：点击状态
-        if (isClicking) {
-            String clickStatus = isCurrentlyClicking ? "●点击中" : "○等待";
-            statusPaint.setColor(isCurrentlyClicking ? Color.parseColor(COLOR_YELLOW) : Color.WHITE);
-            statusPaint.setTextSize(14);
-            canvas.drawText(clickStatus, leftMargin, currentY, statusPaint);
-            currentY += 20;
-            
-            // 第三行：点击计数
-            statusPaint.setColor(Color.WHITE);
-            statusPaint.setTextSize(14);
-            canvas.drawText("已点击:" + clickCount, leftMargin, currentY, statusPaint);
-        } else if (isPaused) {
-            statusPaint.setColor(Color.parseColor(COLOR_ACTIVE_BLUE));
-            statusPaint.setTextSize(14);
-            canvas.drawText("已暂停(" + clickCount + "次)", leftMargin, currentY, statusPaint);
-        } else if (!clickPositions.isEmpty()) {
-            statusPaint.setColor(Color.parseColor(COLOR_GRAY));
-            statusPaint.setTextSize(14);
-            canvas.drawText("位置已选取", leftMargin, currentY, statusPaint);
-        }
     }
     
     private void drawToolbarButtons(Canvas canvas, int width, int height) {
