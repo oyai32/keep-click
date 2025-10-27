@@ -20,11 +20,9 @@ public class FloatingWindowService extends Service {
     private static final String EXTRA_ACTION = "action";
     
     private WindowManager windowManager;
-    private View floatingView;
     private FloatingBallView floatingBallView;
     private boolean isFloatingViewVisible = false;
     private WindowManager.LayoutParams layoutParams;
-    private android.content.BroadcastReceiver clickReceiver;
 
     @Override
     public void onCreate() {
@@ -190,9 +188,6 @@ public class FloatingWindowService extends Service {
 
         windowManager.addView(floatingBallView, layoutParams);
         isFloatingViewVisible = true;
-        
-        // 注册广播接收器
-        registerClickReceiver();
     }
 
     private void hideFloatingView() {
@@ -264,53 +259,12 @@ public class FloatingWindowService extends Service {
             android.util.Log.d("FloatingWindowService", "Window shrunk to toolbar size");
         }
     }
-
-    private void registerClickReceiver() {
-        clickReceiver = new android.content.BroadcastReceiver() {
-            @Override
-            public void onReceive(android.content.Context context, android.content.Intent intent) {
-                if ("com.example.demo.CLICK_START".equals(intent.getAction())) {
-                    if (floatingBallView != null) {
-                        int index = intent.getIntExtra("index", -1);
-                        if (index >= 0) {
-                            floatingBallView.setPositionClicking(index, true);
-                        }
-                    }
-                } else if ("com.example.demo.CLICK_END".equals(intent.getAction())) {
-                    if (floatingBallView != null) {
-                        int index = intent.getIntExtra("index", -1);
-                        if (index >= 0) {
-                            floatingBallView.setPositionClicking(index, false);
-                        }
-                    }
-                }
-            }
-        };
-        
-        android.content.IntentFilter filter = new android.content.IntentFilter();
-        filter.addAction("com.example.demo.CLICK_START");
-        filter.addAction("com.example.demo.CLICK_END");
-        
-        // Android 8.0+ 需要添加标志
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            registerReceiver(clickReceiver, filter, android.content.Context.RECEIVER_NOT_EXPORTED);
-        } else {
-            registerReceiver(clickReceiver, filter);
-        }
-    }
     
     @Override
     public void onDestroy() {
         super.onDestroy();
         if (floatingBallView != null && isFloatingViewVisible) {
             windowManager.removeView(floatingBallView);
-        }
-        if (clickReceiver != null) {
-            try {
-                unregisterReceiver(clickReceiver);
-            } catch (Exception e) {
-                // 忽略注销错误
-            }
         }
     }
 

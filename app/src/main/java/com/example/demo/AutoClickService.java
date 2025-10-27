@@ -127,11 +127,6 @@ public class AutoClickService extends AccessibilityService {
         return START_STICKY;
     }
     
-    public void setClickPositions(List<ClickPosition> positions) {
-        this.clickPositions.clear();
-        this.clickPositions.addAll(positions);
-        Log.d(TAG, "Click positions set, count: " + positions.size());
-    }
     
     public void addClickPosition(float x, float y) {
         ClickPosition pos = new ClickPosition(x, y);
@@ -149,11 +144,6 @@ public class AutoClickService extends AccessibilityService {
     public void clearClickPositions() {
         clickPositions.clear();
         Log.d(TAG, "All click positions cleared.");
-    }
-    
-    public void setClickInterval(long interval) {
-        this.minClickInterval = interval;
-        this.maxClickInterval = interval;
     }
     
     public void updateClickInterval(long minInterval, long maxInterval) {
@@ -223,14 +213,8 @@ public class AutoClickService extends AccessibilityService {
                         float[] offsetPos = getRandomOffset(pos.getX(), pos.getY());
                         Log.d(TAG, "Clicking position " + currentClickIndex + ": original(" + pos.getX() + ", " + pos.getY() + ") -> offset(" + offsetPos[0] + ", " + offsetPos[1] + ")");
                         
-                        // 通知开始点击
-                        notifyClickStart(currentClickIndex);
-                        
                         // 执行点击
                         performClick(offsetPos[0], offsetPos[1]);
-                        
-                        // 通知点击结束（延迟一小段时间以显示黄色效果）
-                        handler.postDelayed(() -> notifyClickEnd(currentClickIndex), 50);
                         
                         // 切换到下一个位置
                         currentClickIndex = (currentClickIndex + 1) % clickPositions.size();
@@ -304,25 +288,5 @@ public class AutoClickService extends AccessibilityService {
         } else {
             Log.e(TAG, "Device API level too low (< N), cannot perform gesture");
         }
-    }
-    
-    public boolean isClicking() {
-        return isClicking;
-    }
-    
-    private void notifyClickStart(int index) {
-        // 发送广播通知点击开始
-        android.content.Intent intent = new android.content.Intent("com.example.demo.CLICK_START");
-        intent.putExtra("index", index);
-        sendBroadcast(intent);
-        Log.d(TAG, "Click start notification sent for index: " + index);
-    }
-    
-    private void notifyClickEnd(int index) {
-        // 发送广播通知点击结束
-        android.content.Intent intent = new android.content.Intent("com.example.demo.CLICK_END");
-        intent.putExtra("index", index);
-        sendBroadcast(intent);
-        Log.d(TAG, "Click end notification sent for index: " + index);
     }
 }

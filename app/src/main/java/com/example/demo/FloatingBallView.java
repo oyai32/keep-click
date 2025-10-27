@@ -16,7 +16,6 @@ public class FloatingBallView extends View {
     private static final String COLOR_BLUE = "#4ECDC4";
     private static final String COLOR_RED = "#FF6B6B";
     private static final String COLOR_GRAY = "#CCCCCC";
-    private static final String COLOR_YELLOW = "#FFFF00";
     private static final String COLOR_DARK_GRAY = "#95A5A6";
     private static final String COLOR_ACTIVE_BLUE = "#2196F3";
     
@@ -35,16 +34,12 @@ public class FloatingBallView extends View {
     private boolean isClicking = false;
     private boolean isPaused = false; // 是否处于暂停状态
     private boolean isDragging = false;
-    private boolean isCurrentlyClicking = false; // 当前是否正在执行点击
-    private int clickCount = 0; // 点击计数
     private float lastTouchX = 0;
     private float lastTouchY = 0;
     
     // 位置管理
     private List<ClickPosition> clickPositions = new ArrayList<>();
     private int maxPositions = 10; // 最多可以选取10个位置
-    private int currentClickIndex = 0;
-    private java.util.Set<Integer> clickingPositions = new java.util.HashSet<>(); // 当前正在点击的位置索引
     
     private OnFloatingBallListener listener;
     
@@ -139,11 +134,6 @@ public class FloatingBallView extends View {
         invalidate();
     }
     
-    public void setClickPosition(float x, float y) {
-        // 这个方法在新实现中不再需要，因为位置管理已经改为使用clickPositions列表
-        // 保留此方法以保持接口兼容性，但不执行任何操作
-        invalidate();
-    }
     
     @Override
     protected void onDraw(Canvas canvas) {
@@ -222,12 +212,8 @@ public class FloatingBallView extends View {
                 float localX = pos.getX() - location[0];
                 float localY = pos.getY() - location[1];
                 
-                // 根据这个位置是否正在点击改变颜色
-                if (clickingPositions.contains(i)) {
-                    circlePaint.setColor(Color.parseColor(COLOR_YELLOW)); // 黄色
-                } else {
-                    circlePaint.setColor(Color.parseColor(COLOR_GRAY)); // 半透明灰色
-                }
+                // 始终使用灰色
+                circlePaint.setColor(Color.parseColor(COLOR_GRAY)); // 半透明灰色
                 canvas.drawCircle(localX, localY, 30, circlePaint); // 30px 半径
                 
                 // 绘制序号
@@ -392,11 +378,6 @@ public class FloatingBallView extends View {
         return false;
     }
     
-    private boolean isLongPress() {
-        // 简单的长按检测，实际应用中可以使用更精确的检测
-        return System.currentTimeMillis() - lastTouchTime > 500;
-    }
-    
     private long lastTouchTime = 0;
     
     private void handleDrag(float x, float y) {
@@ -451,8 +432,6 @@ public class FloatingBallView extends View {
         // 进入点击模式
         setClicking(true);
         setPaused(false);
-        clickCount = 0; // 重置计数器
-        currentClickIndex = 0;
         android.util.Log.d("FloatingBallView", "Calling listener.onStartClicking()");
         if (listener != null) {
             listener.onStartClicking();
@@ -476,7 +455,6 @@ public class FloatingBallView extends View {
         setSelectionMode(false);
         setClicking(false);
         setPaused(false);
-        clickCount = 0; // 重置计数器
         if (listener != null) {
             listener.onClearPositions();
             listener.onStopClicking(); // 停止点击并设置穿透
@@ -484,45 +462,9 @@ public class FloatingBallView extends View {
         }
     }
     
-    // 新增方法
-    public void nextClickPosition() {
-        if (!clickPositions.isEmpty()) {
-            currentClickIndex = (currentClickIndex + 1) % clickPositions.size();
-            invalidate();
-        }
-    }
-    
-    public ClickPosition getCurrentClickPosition() {
-        if (!clickPositions.isEmpty() && currentClickIndex < clickPositions.size()) {
-            return clickPositions.get(currentClickIndex);
-        }
-        return null;
-    }
-    
-    public List<ClickPosition> getAllClickPositions() {
-        return new ArrayList<>(clickPositions);
-    }
     
     public void clearAllPositions() {
         clickPositions.clear();
-        invalidate();
-    }
-    
-    public void setCurrentlyClicking(boolean clicking) {
-        this.isCurrentlyClicking = clicking;
-        if (clicking) {
-            // 每次开始点击时增加计数
-            clickCount++;
-        }
-        invalidate();
-    }
-    
-    public void setPositionClicking(int index, boolean clicking) {
-        if (clicking) {
-            clickingPositions.add(index);
-        } else {
-            clickingPositions.remove(index);
-        }
         invalidate();
     }
     
