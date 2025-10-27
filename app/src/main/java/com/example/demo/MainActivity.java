@@ -45,7 +45,6 @@ public class MainActivity extends AppCompatActivity {
         
         Button startFloatingButton = findViewById(R.id.startFloatingButton);
         Button stopFloatingButton = findViewById(R.id.stopFloatingButton);
-        Button checkPermissionsButton = findViewById(R.id.checkPermissionsButton);
         Button saveIntervalButton = findViewById(R.id.saveIntervalButton);
         
         minIntervalInput = findViewById(R.id.minIntervalInput);
@@ -54,7 +53,6 @@ public class MainActivity extends AppCompatActivity {
 
         startFloatingButton.setOnClickListener(v -> startFloatingWindow());
         stopFloatingButton.setOnClickListener(v -> stopFloatingWindow());
-        checkPermissionsButton.setOnClickListener(v -> checkAndRequestPermissions());
         saveIntervalButton.setOnClickListener(v -> saveIntervalSettings());
         
         // 加载保存的设置
@@ -196,9 +194,9 @@ public class MainActivity extends AppCompatActivity {
     
     private void updateCurrentIntervalText(long minInterval, long maxInterval) {
         if (minInterval == maxInterval) {
-            currentIntervalText.setText("当前设置：固定 " + minInterval + " ms");
+            currentIntervalText.setText("当前点击间隔：固定 " + minInterval + " ms");
         } else {
-            currentIntervalText.setText("当前设置：" + minInterval + " - " + maxInterval + " ms（随机）");
+            currentIntervalText.setText("当前点击间隔：" + minInterval + " - " + maxInterval + " ms（随机）");
         }
     }
 }
