@@ -20,6 +20,7 @@ public class AutoClickService extends AccessibilityService {
     private int currentClickIndex = 0;
     private long minClickInterval = 150; // 最小间隔，默认150ms
     private long maxClickInterval = 300; // 最大间隔，默认300ms
+    private int randomOffset = 10; // 随机偏移半径，默认5px
     private java.util.Random random = new java.util.Random();
     
     public static class ClickPosition {
@@ -116,6 +117,11 @@ public class AutoClickService extends AccessibilityService {
                 long minInterval = intent.getLongExtra("min_interval", 150);
                 long maxInterval = intent.getLongExtra("max_interval", 300);
                 updateClickInterval(minInterval, maxInterval);
+            } else if ("update_settings".equals(action)) {
+                long minInterval = intent.getLongExtra("min_interval", 150);
+                long maxInterval = intent.getLongExtra("max_interval", 300);
+                int offset = intent.getIntExtra("random_offset", 10);
+                updateSettings(minInterval, maxInterval, offset);
             }
         }
         return START_STICKY;
@@ -156,6 +162,13 @@ public class AutoClickService extends AccessibilityService {
         Log.d(TAG, "Click interval updated: " + minInterval + " - " + maxInterval + " ms");
     }
     
+    public void updateSettings(long minInterval, long maxInterval, int offset) {
+        this.minClickInterval = minInterval;
+        this.maxClickInterval = maxInterval;
+        this.randomOffset = offset;
+        Log.d(TAG, "Settings updated: interval " + minInterval + " - " + maxInterval + " ms, offset " + offset + " px");
+    }
+    
     private long getRandomInterval() {
         if (minClickInterval == maxClickInterval) {
             return minClickInterval;
@@ -163,6 +176,18 @@ public class AutoClickService extends AccessibilityService {
         // 生成 [minClickInterval, maxClickInterval] 范围内的随机数
         long range = maxClickInterval - minClickInterval + 1;
         return minClickInterval + (long)(random.nextDouble() * range);
+    }
+    
+    private float[] getRandomOffset(float x, float y) {
+        if (randomOffset == 0) {
+            return new float[]{x, y};
+        }
+        // 在圆形范围内生成随机偏移
+        double angle = random.nextDouble() * 2 * Math.PI;
+        double radius = random.nextDouble() * randomOffset;
+        float offsetX = (float)(radius * Math.cos(angle));
+        float offsetY = (float)(radius * Math.sin(angle));
+        return new float[]{x + offsetX, y + offsetY};
     }
     
     public void startClicking() {
@@ -191,13 +216,16 @@ public class AutoClickService extends AccessibilityService {
             public void run() {
                 if (isClicking && !clickPositions.isEmpty()) {
                     ClickPosition pos = clickPositions.get(currentClickIndex);
-                    Log.d(TAG, "Clicking position " + currentClickIndex + ": (" + pos.getX() + ", " + pos.getY() + ")");
                     
                     if (pos.isActive()) {
+                        // 应用随机偏移
+                        float[] offsetPos = getRandomOffset(pos.getX(), pos.getY());
+                        Log.d(TAG, "Clicking position " + currentClickIndex + ": original(" + pos.getX() + ", " + pos.getY() + ") -> offset(" + offsetPos[0] + ", " + offsetPos[1] + ")");
+                        
                         // 通知开始点击
                         notifyClickStart(currentClickIndex);
                         
-                        performClick(pos.getX(), pos.getY());
+                        performClick(offsetPos[0], offsetPos[1]);
                         
                         // 通知点击结束（延迟一小段时间以显示黄色效果）
                         handler.postDelayed(() -> notifyClickEnd(currentClickIndex), 50);

@@ -91,7 +91,7 @@
         android:id="@+id/intervalDescription"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="点击间隔，单位：毫秒(ms)"
+        android:text="1. 点击间隔，单位：毫秒(ms)"
         android:textSize="12sp"
         android:textColor="#666666"
         android:gravity="start"
@@ -125,8 +125,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="最小值"
-                android:textSize="12sp"
-                android:textColor="#666666" />
+                android:textColor="#666666"
+                android:textSize="12sp" />
 
             <EditText
                 android:id="@+id/minIntervalInput"
@@ -179,6 +179,63 @@
         </LinearLayout>
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/randomOffsetDescription"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="2. 点击位置随机距离，单位：像素(px)"
+        android:textSize="12sp"
+        android:textColor="#666666"
+        android:gravity="start"
+        android:layout_marginTop="15dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginEnd="40dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/intervalInputLayout" />
+
+    <LinearLayout
+        android:id="@+id/randomOffsetInputLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginEnd="40dp"
+        android:gravity="center_vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/randomOffsetDescription">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="随机半径："
+            android:textSize="14sp"
+            android:textColor="#666666"
+            android:layout_marginEnd="10dp" />
+
+        <EditText
+            android:id="@+id/randomOffsetInput"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:hint="5"
+            android:inputType="number"
+            android:gravity="center"
+            android:textSize="16sp"
+            android:background="@android:drawable/edit_text"
+            android:padding="10dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" px"
+            android:textSize="14sp"
+            android:textColor="#666666"
+            android:layout_marginStart="10dp" />
+    </LinearLayout>
+
     <Button
         android:id="@+id/saveIntervalButton"
         android:layout_width="0dp"
@@ -192,7 +249,7 @@
         android:layout_marginEnd="40dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/intervalInputLayout" />
+        app:layout_constraintTop_toBottomOf="@id/randomOffsetInputLayout" />
 
     <TextView
         android:id="@+id/currentIntervalText"
@@ -202,7 +259,7 @@
         android:layout_marginTop="4dp"
         android:layout_marginEnd="40dp"
         android:gravity="start"
-        android:text="当前点击间隔：150 - 300 ms（随机）"
+        android:text="当前点击间隔：150 - 300 ms（随机）\n点击位置随机半径：5 px"
         android:textColor="#4ECDC4"
         android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="parent"

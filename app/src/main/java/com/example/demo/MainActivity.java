@@ -24,9 +24,11 @@ public class MainActivity extends AppCompatActivity {
     private static final String PREFS_NAME = "AutoClickerPrefs";
     private static final String KEY_MIN_INTERVAL = "min_interval";
     private static final String KEY_MAX_INTERVAL = "max_interval";
+    private static final String KEY_RANDOM_OFFSET = "random_offset";
     
     private EditText minIntervalInput;
     private EditText maxIntervalInput;
+    private EditText randomOffsetInput;
     private TextView currentIntervalText;
     private SharedPreferences sharedPreferences;
 
@@ -49,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
         
         minIntervalInput = findViewById(R.id.minIntervalInput);
         maxIntervalInput = findViewById(R.id.maxIntervalInput);
+        randomOffsetInput = findViewById(R.id.randomOffsetInput);
         currentIntervalText = findViewById(R.id.currentIntervalText);
 
         startFloatingButton.setOnClickListener(v -> startFloatingWindow());
@@ -135,24 +138,28 @@ public class MainActivity extends AppCompatActivity {
     private void loadIntervalSettings() {
         long minInterval = sharedPreferences.getLong(KEY_MIN_INTERVAL, 150);
         long maxInterval = sharedPreferences.getLong(KEY_MAX_INTERVAL, 300);
+        int randomOffset = sharedPreferences.getInt(KEY_RANDOM_OFFSET, 10);
         
         minIntervalInput.setText(String.valueOf(minInterval));
         maxIntervalInput.setText(String.valueOf(maxInterval));
-        updateCurrentIntervalText(minInterval, maxInterval);
+        randomOffsetInput.setText(String.valueOf(randomOffset));
+        updateCurrentIntervalText(minInterval, maxInterval, randomOffset);
     }
     
     private void saveIntervalSettings() {
         String minStr = minIntervalInput.getText().toString().trim();
         String maxStr = maxIntervalInput.getText().toString().trim();
+        String offsetStr = randomOffsetInput.getText().toString().trim();
         
-        if (minStr.isEmpty() || maxStr.isEmpty()) {
-            Toast.makeText(this, "请输入完整的间隔时间", Toast.LENGTH_SHORT).show();
+        if (minStr.isEmpty() || maxStr.isEmpty() || offsetStr.isEmpty()) {
+            Toast.makeText(this, "请输入完整的设置", Toast.LENGTH_SHORT).show();
             return;
         }
         
         try {
             long minInterval = Long.parseLong(minStr);
             long maxInterval = Long.parseLong(maxStr);
+            int randomOffset = Integer.parseInt(offsetStr);
             
             // 验证输入
             if (minInterval < 50) {
@@ -170,33 +177,48 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
             
+            if (randomOffset < 0) {
+                Toast.makeText(this, "随机距离不能为负数", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            
+            if (randomOffset > 100) {
+                Toast.makeText(this, "随机距离不能超过 100px", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            
             // 保存设置
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putLong(KEY_MIN_INTERVAL, minInterval);
             editor.putLong(KEY_MAX_INTERVAL, maxInterval);
+            editor.putInt(KEY_RANDOM_OFFSET, randomOffset);
             editor.apply();
             
             // 更新 AutoClickService 的间隔设置
             Intent serviceIntent = new Intent(this, AutoClickService.class);
-            serviceIntent.putExtra("action", "update_interval");
+            serviceIntent.putExtra("action", "update_settings");
             serviceIntent.putExtra("min_interval", minInterval);
             serviceIntent.putExtra("max_interval", maxInterval);
+            serviceIntent.putExtra("random_offset", randomOffset);
             startService(serviceIntent);
             
-            updateCurrentIntervalText(minInterval, maxInterval);
+            updateCurrentIntervalText(minInterval, maxInterval, randomOffset);
             Toast.makeText(this, "设置已保存", Toast.LENGTH_SHORT).show();
             
-            android.util.Log.d("MainActivity", "Interval settings saved: " + minInterval + " - " + maxInterval + " ms");
+            android.util.Log.d("MainActivity", "Settings saved: interval " + minInterval + " - " + maxInterval + " ms, offset " + randomOffset + " px");
         } catch (NumberFormatException e) {
             Toast.makeText(this, "请输入有效的数字", Toast.LENGTH_SHORT).show();
         }
     }
     
-    private void updateCurrentIntervalText(long minInterval, long maxInterval) {
+    private void updateCurrentIntervalText(long minInterval, long maxInterval, int randomOffset) {
+        String intervalText;
         if (minInterval == maxInterval) {
-            currentIntervalText.setText("当前点击间隔：固定 " + minInterval + " ms");
+            intervalText = "当前点击间隔：固定 " + minInterval + " ms";
         } else {
-            currentIntervalText.setText("当前点击间隔：" + minInterval + " - " + maxInterval + " ms（随机）");
+            intervalText = "当前点击间隔：" + minInterval + " - " + maxInterval + " ms（随机）";
         }
+        intervalText += "\n点击位置随机半径：" + randomOffset + " px";
+        currentIntervalText.setText(intervalText);
     }
 }
