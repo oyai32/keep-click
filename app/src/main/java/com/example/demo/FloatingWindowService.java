@@ -271,11 +271,17 @@ public class FloatingWindowService extends Service {
             public void onReceive(android.content.Context context, android.content.Intent intent) {
                 if ("com.example.demo.CLICK_START".equals(intent.getAction())) {
                     if (floatingBallView != null) {
-                        floatingBallView.setCurrentlyClicking(true);
+                        int index = intent.getIntExtra("index", -1);
+                        if (index >= 0) {
+                            floatingBallView.setPositionClicking(index, true);
+                        }
                     }
                 } else if ("com.example.demo.CLICK_END".equals(intent.getAction())) {
                     if (floatingBallView != null) {
-                        floatingBallView.setCurrentlyClicking(false);
+                        int index = intent.getIntExtra("index", -1);
+                        if (index >= 0) {
+                            floatingBallView.setPositionClicking(index, false);
+                        }
                     }
                 }
             }

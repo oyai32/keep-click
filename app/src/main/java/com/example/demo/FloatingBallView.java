@@ -42,8 +42,9 @@ public class FloatingBallView extends View {
     
     // 位置管理
     private List<ClickPosition> clickPositions = new ArrayList<>();
-    private int maxPositions = 1; // 只能选取一个位置
+    private int maxPositions = 10; // 最多可以选取10个位置
     private int currentClickIndex = 0;
+    private java.util.Set<Integer> clickingPositions = new java.util.HashSet<>(); // 当前正在点击的位置索引
     
     private OnFloatingBallListener listener;
     
@@ -221,13 +222,13 @@ public class FloatingBallView extends View {
                 float localX = pos.getX() - location[0];
                 float localY = pos.getY() - location[1];
                 
-                // 根据是否正在点击改变颜色
-                if (isCurrentlyClicking) {
+                // 根据这个位置是否正在点击改变颜色
+                if (clickingPositions.contains(i)) {
                     circlePaint.setColor(Color.parseColor(COLOR_YELLOW)); // 黄色
                 } else {
                     circlePaint.setColor(Color.parseColor(COLOR_GRAY)); // 半透明灰色
                 }
-                canvas.drawCircle(localX, localY, 15, circlePaint);
+                canvas.drawCircle(localX, localY, 30, circlePaint); // 30px 半径
                 
                 // 绘制序号
                 Paint numberPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -335,35 +336,37 @@ public class FloatingBallView extends View {
         android.util.Log.d("FloatingBallView", "Selection touch: local(" + x + "," + y + ") screen(" + screenX + "," + screenY + ")");
         android.util.Log.d("FloatingBallView", "Toolbar location: (" + location[0] + "," + location[1] + ")");
         
-        // 检查是否点击了已存在的位置圆圈
-        if (!clickPositions.isEmpty()) {
-            ClickPosition pos = clickPositions.get(0);
-            if (pos.isActive() && isPointInCircle(screenX, screenY, pos.getX(), pos.getY(), 15)) {
-                // 点击了已存在的位置，取消选中
-                clickPositions.clear();
+        // 检查是否点击了已存在的位置圆圈（点击相同位置则取消）
+        for (int i = 0; i < clickPositions.size(); i++) {
+            ClickPosition pos = clickPositions.get(i);
+            if (pos.isActive() && isPointInCircle(screenX, screenY, pos.getX(), pos.getY(), 30)) {
+                // 点击了已存在的位置，取消这个位置
+                clickPositions.remove(i);
                 if (listener != null) {
-                    listener.onPositionRemoved(0);
+                    listener.onPositionRemoved(i);
                 }
                 invalidate();
+                android.util.Log.d("FloatingBallView", "Removed position " + i + " at (" + screenX + "," + screenY + ")");
                 return true;
             }
         }
         
-        // 清空旧位置，添加新位置（只保留一个位置）
-        clickPositions.clear();
+        // 检查是否已达到最大位置数
+        if (clickPositions.size() >= maxPositions) {
+            if (listener != null) {
+                listener.showToast("最多只能选取 " + maxPositions + " 个位置");
+            }
+            return true;
+        }
+        
+        // 添加新位置
         ClickPosition newPos = new ClickPosition(screenX, screenY);
         clickPositions.add(newPos);
         if (listener != null) {
-            // 先清空服务中的旧位置
-            listener.onClearPositions();
-            // 再添加新位置
             listener.onPositionSelected(screenX, screenY);
         }
         invalidate();
-        android.util.Log.d("FloatingBallView", "Added position: (" + screenX + "," + screenY + ")");
-        
-        // 选取完成后，退出选取模式，恢复窗口大小
-        // setSelectionMode(false);
+        android.util.Log.d("FloatingBallView", "Added position " + (clickPositions.size() - 1) + " at (" + screenX + "," + screenY + ")");
         
         return true;
     }
@@ -510,6 +513,15 @@ public class FloatingBallView extends View {
         if (clicking) {
             // 每次开始点击时增加计数
             clickCount++;
+        }
+        invalidate();
+    }
+    
+    public void setPositionClicking(int index, boolean clicking) {
+        if (clicking) {
+            clickingPositions.add(index);
+        } else {
+            clickingPositions.remove(index);
         }
         invalidate();
     }

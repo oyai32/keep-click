@@ -215,6 +215,7 @@ public class AutoClickService extends AccessibilityService {
             @Override
             public void run() {
                 if (isClicking && !clickPositions.isEmpty()) {
+                    // 轮流点击：每次点击当前索引的位置
                     ClickPosition pos = clickPositions.get(currentClickIndex);
                     
                     if (pos.isActive()) {
@@ -225,6 +226,7 @@ public class AutoClickService extends AccessibilityService {
                         // 通知开始点击
                         notifyClickStart(currentClickIndex);
                         
+                        // 执行点击
                         performClick(offsetPos[0], offsetPos[1]);
                         
                         // 通知点击结束（延迟一小段时间以显示黄色效果）
@@ -235,9 +237,10 @@ public class AutoClickService extends AccessibilityService {
                     } else {
                         Log.d(TAG, "Position " + currentClickIndex + " is not active, skipping");
                     }
-                    // 使用随机间隔
+                    
+                    // 使用随机间隔后点击下一个位置
                     long nextInterval = getRandomInterval();
-                    Log.d(TAG, "Next click in " + nextInterval + " ms");
+                    Log.d(TAG, "Next click in " + nextInterval + " ms (will click position " + currentClickIndex + ")");
                     handler.postDelayed(this, nextInterval);
                 } else {
                     Log.d(TAG, "Stopping click runnable - isClicking: " + isClicking + ", positions: " + clickPositions.size());
