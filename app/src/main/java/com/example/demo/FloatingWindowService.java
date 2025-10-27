@@ -109,6 +109,9 @@ public class FloatingWindowService extends Service {
                 serviceIntent.putExtra("x", x);
                 serviceIntent.putExtra("y", y);
                 startService(serviceIntent);
+                
+                // 选中位置后，扩展窗口到全屏以显示标记
+                expandWindowForMarker();
             }
 
             @Override
@@ -145,6 +148,9 @@ public class FloatingWindowService extends Service {
                 Intent serviceIntent = new Intent(FloatingWindowService.this, AutoClickService.class);
                 serviceIntent.putExtra(EXTRA_ACTION, "clear_positions");
                 startService(serviceIntent);
+                
+                // 清空位置后，缩小窗口到工具栏大小
+                shrinkWindowToToolbar();
             }
         });
         
@@ -167,8 +173,8 @@ public class FloatingWindowService extends Service {
         });
 
         layoutParams = new WindowManager.LayoutParams(
-                WindowManager.LayoutParams.MATCH_PARENT, // 窗口保持全屏以显示标记
-                WindowManager.LayoutParams.MATCH_PARENT,
+                200, // 初始化为工具栏宽度
+                500, // 初始化为工具栏高度
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ?
                         WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY :
                         WindowManager.LayoutParams.TYPE_PHONE,
@@ -184,8 +190,6 @@ public class FloatingWindowService extends Service {
 
         windowManager.addView(floatingBallView, layoutParams);
         isFloatingViewVisible = true;
-        
-        // 不需要设置穿透模式，由View的onTouchEvent处理
         
         // 注册广播接收器
         registerClickReceiver();
@@ -239,6 +243,26 @@ public class FloatingWindowService extends Service {
     public void setClickThroughMode(boolean clickThrough) {
         // 不需要改变窗口标志，由View的onTouchEvent处理穿透
         // 这个方法保留以保持接口兼容性
+    }
+    
+    private void expandWindowForMarker() {
+        // 扩展窗口到全屏以显示标记
+        if (layoutParams != null && isFloatingViewVisible) {
+            layoutParams.width = WindowManager.LayoutParams.MATCH_PARENT;
+            layoutParams.height = WindowManager.LayoutParams.MATCH_PARENT;
+            windowManager.updateViewLayout(floatingBallView, layoutParams);
+            android.util.Log.d("FloatingWindowService", "Window expanded for marker display");
+        }
+    }
+    
+    private void shrinkWindowToToolbar() {
+        // 缩小窗口到工具栏大小
+        if (layoutParams != null && isFloatingViewVisible) {
+            layoutParams.width = 200;
+            layoutParams.height = 500;
+            windowManager.updateViewLayout(floatingBallView, layoutParams);
+            android.util.Log.d("FloatingWindowService", "Window shrunk to toolbar size");
+        }
     }
 
     private void registerClickReceiver() {
