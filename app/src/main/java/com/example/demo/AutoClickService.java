@@ -160,12 +160,15 @@ public class AutoClickService extends AccessibilityService {
     }
     
     private long getRandomInterval() {
+        Log.d(TAG, "getRandomInterval: min=" + minClickInterval + ", max=" + maxClickInterval);
         if (minClickInterval == maxClickInterval) {
             return minClickInterval;
         }
         // 生成 [minClickInterval, maxClickInterval] 范围内的随机数
         long range = maxClickInterval - minClickInterval + 1;
-        return minClickInterval + (long)(random.nextDouble() * range);
+        long result = minClickInterval + (long)(random.nextDouble() * range);
+        Log.d(TAG, "Generated interval: " + result + "ms");
+        return result;
     }
     
     private float[] getRandomOffset(float x, float y) {
@@ -181,6 +184,9 @@ public class AutoClickService extends AccessibilityService {
     }
     
     public void startClicking() {
+        long startTime = System.currentTimeMillis();
+        Log.d(TAG, "=== startClicking() called at: " + startTime);
+        
         if (isClicking) {
             Log.d(TAG, "Already clicking, ignoring start request");
             return;
@@ -209,31 +215,35 @@ public class AutoClickService extends AccessibilityService {
                     ClickPosition pos = clickPositions.get(currentClickIndex);
                     
                     if (pos.isActive()) {
-                        // 应用随机偏移
+                        // 1. 先执行点击
+                        long clickTime = System.currentTimeMillis();
                         float[] offsetPos = getRandomOffset(pos.getX(), pos.getY());
-                        Log.d(TAG, "Clicking position " + currentClickIndex + ": original(" + pos.getX() + ", " + pos.getY() + ") -> offset(" + offsetPos[0] + ", " + offsetPos[1] + ")");
-                        
-                        // 执行点击
+                        Log.d(TAG, "[" + clickTime + "] Clicking position " + currentClickIndex + ": original(" + pos.getX() + ", " + pos.getY() + ") -> offset(" + offsetPos[0] + ", " + offsetPos[1] + ")");
                         performClick(offsetPos[0], offsetPos[1]);
                         
-                        // 切换到下一个位置
+                        // 2. 切换到下一个位置
                         currentClickIndex = (currentClickIndex + 1) % clickPositions.size();
+                        
+                        // 3. 等待随机间隔后再点击下一个位置
+                        long nextInterval = getRandomInterval();
+                        Log.d(TAG, "Next click in " + nextInterval + " ms (will click position " + currentClickIndex + ")");
+                        handler.postDelayed(this, nextInterval);
                     } else {
                         Log.d(TAG, "Position " + currentClickIndex + " is not active, skipping");
+                        // 跳过不活动的位置，立即尝试下一个
+                        currentClickIndex = (currentClickIndex + 1) % clickPositions.size();
+                        handler.post(this);
                     }
-                    
-                    // 使用随机间隔后点击下一个位置
-                    long nextInterval = getRandomInterval();
-                    Log.d(TAG, "Next click in " + nextInterval + " ms (will click position " + currentClickIndex + ")");
-                    handler.postDelayed(this, nextInterval);
                 } else {
                     Log.d(TAG, "Stopping click runnable - isClicking: " + isClicking + ", positions: " + clickPositions.size());
                 }
             }
         };
         
+        // 立即执行第一次点击（窗口已通过 View.post() 确保稳定）
+        long postTime = System.currentTimeMillis();
         handler.post(clickRunnable);
-        Log.d(TAG, "Click runnable posted to handler");
+        Log.d(TAG, "=== Click runnable posted at: " + postTime + " (executing immediately after window stabilization)");
     }
     
     public void stopClicking() {

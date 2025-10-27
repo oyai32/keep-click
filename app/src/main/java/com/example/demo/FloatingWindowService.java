@@ -73,13 +73,12 @@ public class FloatingWindowService extends Service {
             public void onStartClicking() {
                 // 开始自动连击
                 android.util.Log.d("FloatingWindowService", "onStartClicking called");
-                Intent serviceIntent = new Intent(FloatingWindowService.this, AutoClickService.class);
-                serviceIntent.putExtra(EXTRA_ACTION, ACTION_START);
-                startService(serviceIntent);
-                android.util.Log.d("FloatingWindowService", "AutoClickService start intent sent");
                 
                 // 设置窗口为穿透模式，让点击能够作用到底层应用
                 setClickThroughMode(true);
+                
+                // 等待窗口布局完全稳定后再发送点击命令
+                waitForWindowStableAndStartClicking();
             }
 
             @Override
@@ -258,6 +257,29 @@ public class FloatingWindowService extends Service {
             windowManager.updateViewLayout(floatingBallView, layoutParams);
             android.util.Log.d("FloatingWindowService", "Window shrunk to toolbar size");
         }
+    }
+    
+    private void waitForWindowStableAndStartClicking() {
+        if (floatingBallView == null) {
+            return;
+        }
+        
+        // 窗口稳定延迟时间（毫秒）
+        // 这个延迟确保窗口的所有系统级变化（大小、穿透模式等）完全生效
+        final int WINDOW_STABLE_DELAY_MS = 200;
+        
+        android.util.Log.d("FloatingWindowService", "Waiting " + WINDOW_STABLE_DELAY_MS + "ms for window to stabilize");
+        
+        floatingBallView.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                android.util.Log.d("FloatingWindowService", "Window stable after " + WINDOW_STABLE_DELAY_MS + "ms, sending start command");
+                Intent serviceIntent = new Intent(FloatingWindowService.this, AutoClickService.class);
+                serviceIntent.putExtra(EXTRA_ACTION, ACTION_START);
+                startService(serviceIntent);
+                android.util.Log.d("FloatingWindowService", "AutoClickService start intent sent");
+            }
+        }, WINDOW_STABLE_DELAY_MS);
     }
     
     @Override

@@ -64,9 +64,25 @@ public class MainActivity extends AppCompatActivity {
 
     private void startFloatingWindow() {
         if (checkPermissions()) {
+            // 启动浮窗服务
             Intent serviceIntent = new Intent(this, FloatingWindowService.class);
             serviceIntent.putExtra("action", "show");
             startService(serviceIntent);
+            
+            // 同时发送当前设置到 AutoClickService
+            long minInterval = sharedPreferences.getLong(KEY_MIN_INTERVAL, 150);
+            long maxInterval = sharedPreferences.getLong(KEY_MAX_INTERVAL, 300);
+            int randomOffset = sharedPreferences.getInt(KEY_RANDOM_OFFSET, 10);
+            
+            Intent clickServiceIntent = new Intent(this, AutoClickService.class);
+            clickServiceIntent.putExtra("action", "update_settings");
+            clickServiceIntent.putExtra("min_interval", minInterval);
+            clickServiceIntent.putExtra("max_interval", maxInterval);
+            clickServiceIntent.putExtra("random_offset", randomOffset);
+            startService(clickServiceIntent);
+            
+            android.util.Log.d("MainActivity", "Initialized AutoClickService with settings: " + minInterval + "-" + maxInterval + "ms, offset=" + randomOffset + "px");
+            
             Toast.makeText(this, "浮动窗口已启动", Toast.LENGTH_SHORT).show();
         } else {
             checkAndRequestPermissions();
