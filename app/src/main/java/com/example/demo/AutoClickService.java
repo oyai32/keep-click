@@ -18,7 +18,9 @@ public class AutoClickService extends AccessibilityService {
     private boolean isClicking = false;
     private List<ClickPosition> clickPositions = new ArrayList<>();
     private int currentClickIndex = 0;
-    private long clickInterval = 150; // 0.15秒间隔
+    private long minClickInterval = 150; // 最小间隔，默认150ms
+    private long maxClickInterval = 300; // 最大间隔，默认300ms
+    private java.util.Random random = new java.util.Random();
     
     public static class ClickPosition {
         private float x;
@@ -110,6 +112,10 @@ public class AutoClickService extends AccessibilityService {
                 }
             } else if ("clear_positions".equals(action)) {
                 clearClickPositions();
+            } else if ("update_interval".equals(action)) {
+                long minInterval = intent.getLongExtra("min_interval", 150);
+                long maxInterval = intent.getLongExtra("max_interval", 300);
+                updateClickInterval(minInterval, maxInterval);
             }
         }
         return START_STICKY;
@@ -140,7 +146,23 @@ public class AutoClickService extends AccessibilityService {
     }
     
     public void setClickInterval(long interval) {
-        this.clickInterval = interval;
+        this.minClickInterval = interval;
+        this.maxClickInterval = interval;
+    }
+    
+    public void updateClickInterval(long minInterval, long maxInterval) {
+        this.minClickInterval = minInterval;
+        this.maxClickInterval = maxInterval;
+        Log.d(TAG, "Click interval updated: " + minInterval + " - " + maxInterval + " ms");
+    }
+    
+    private long getRandomInterval() {
+        if (minClickInterval == maxClickInterval) {
+            return minClickInterval;
+        }
+        // 生成 [minClickInterval, maxClickInterval] 范围内的随机数
+        long range = maxClickInterval - minClickInterval + 1;
+        return minClickInterval + (long)(random.nextDouble() * range);
     }
     
     public void startClicking() {
@@ -185,7 +207,10 @@ public class AutoClickService extends AccessibilityService {
                     } else {
                         Log.d(TAG, "Position " + currentClickIndex + " is not active, skipping");
                     }
-                    handler.postDelayed(this, clickInterval);
+                    // 使用随机间隔
+                    long nextInterval = getRandomInterval();
+                    Log.d(TAG, "Next click in " + nextInterval + " ms");
+                    handler.postDelayed(this, nextInterval);
                 } else {
                     Log.d(TAG, "Stopping click runnable - isClicking: " + isClicking + ", positions: " + clickPositions.size());
                 }

@@ -25,7 +25,7 @@
         android:id="@+id/descriptionText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="点击启动按钮后，会在屏幕上显示一个浮动小球。\n小球包含选择、开始和暂停功能，可以指定位置进行自动连击。"
+        android:text="在屏幕左上角显示悬浮工具栏，包含选取、开始、暂停、清空、移动五个功能按钮。\n点击选取按钮可选择屏幕上的点击位置，点击开始按钮自动连续点击该位置。"
         android:textSize="14sp"
         android:textColor="#666666"
         android:gravity="center"
@@ -82,18 +82,157 @@
         app:layout_constraintTop_toBottomOf="@id/stopFloatingButton" />
 
     <TextView
-        android:id="@+id/instructionText"
+        android:id="@+id/settingsTitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="使用说明：\n1. 首次使用需要授予悬浮窗权限和无障碍服务权限\n2. 点击启动浮动窗口后，屏幕上会出现一个红色小球\n3. 点击小球上的'选'按钮选择要连击的位置\n4. 点击'始'按钮开始自动连击\n5. 点击'停'按钮停止连击\n6. 点击'×'按钮关闭浮动窗口"
-        android:textSize="12sp"
-        android:textColor="#999999"
-        android:gravity="start"
+        android:text="⚙️ 点击间隔设置"
+        android:textSize="16sp"
+        android:textColor="#333333"
+        android:textStyle="bold"
+        android:gravity="center"
         android:layout_marginTop="30dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginEnd="40dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/checkPermissionsButton" />
+
+    <TextView
+        android:id="@+id/intervalDescription"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="点击间隔将在最小值和最大值之间随机选择，单位：毫秒(ms)"
+        android:textSize="12sp"
+        android:textColor="#666666"
+        android:gravity="center"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginEnd="40dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/settingsTitle" />
+
+    <LinearLayout
+        android:id="@+id/intervalInputLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="15dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginEnd="40dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/intervalDescription">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="最小值"
+                android:textSize="12sp"
+                android:textColor="#666666" />
+
+            <EditText
+                android:id="@+id/minIntervalInput"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:hint="100"
+                android:inputType="number"
+                android:gravity="center"
+                android:textSize="16sp"
+                android:background="@android:drawable/edit_text"
+                android:padding="10dp"
+                android:layout_marginTop="5dp" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" - "
+            android:textSize="20sp"
+            android:textColor="#666666"
+            android:layout_gravity="center"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="最大值"
+                android:textSize="12sp"
+                android:textColor="#666666" />
+
+            <EditText
+                android:id="@+id/maxIntervalInput"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:hint="300"
+                android:inputType="number"
+                android:gravity="center"
+                android:textSize="16sp"
+                android:background="@android:drawable/edit_text"
+                android:padding="10dp"
+                android:layout_marginTop="5dp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/saveIntervalButton"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:text="保存设置"
+        android:textSize="14sp"
+        android:textColor="#FFFFFF"
+        android:background="@drawable/button_start_background"
+        android:layout_marginTop="15dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginEnd="40dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/intervalInputLayout" />
+
+    <TextView
+        android:id="@+id/currentIntervalText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="当前设置：150 - 300 ms（随机）"
+        android:textSize="12sp"
+        android:textColor="#4ECDC4"
+        android:gravity="center"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginEnd="40dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/saveIntervalButton" />
+
+    <TextView
+        android:id="@+id/instructionText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="使用说明：\n1. 首次使用需要授予悬浮窗权限和无障碍服务权限\n2. 点击【选取】按钮，然后点击屏幕上要连击的位置\n3. 点击【开始】按钮开始自动连击\n4. 点击【暂停】按钮停止连击\n5. 点击【清空】按钮清除选择的位置\n6. 按住【移动】按钮可拖拽工具栏"
+        android:textSize="12sp"
+        android:textColor="#999999"
+        android:gravity="start"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/currentIntervalText" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
