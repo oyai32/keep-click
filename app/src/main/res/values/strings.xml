@@ -1,4 +1,4 @@
 <resources>
-    <string name="app_name">自动连击助手</string>
+    <string name="app_name">KeepClick</string>
     <string name="accessibility_service_description">自动连击服务，用于在指定位置进行自动点击操作</string>
 </resources>
