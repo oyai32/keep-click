@@ -1,4 +1,4 @@
 <resources>
     <string name="app_name">KeepClick</string>
-    <string name="accessibility_service_description">自动连击服务，用于在指定位置进行自动点击操作</string>
+    <string name="accessibility_service_description">KeepClick 自动点击服务：支持多位置轮流点击、随机间隔和位置偏移</string>
 </resources>
