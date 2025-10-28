@@ -171,7 +171,7 @@ public class FloatingWindowService extends Service {
 
         layoutParams = new WindowManager.LayoutParams(
                 200, // 初始化为工具栏宽度
-                500, // 初始化为工具栏高度
+                600, // 初始化为工具栏高度（6个按钮）
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ?
                         WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY :
                         WindowManager.LayoutParams.TYPE_PHONE,
@@ -224,7 +224,7 @@ public class FloatingWindowService extends Service {
             } else {
                 // 非选取模式：缩小窗口到工具栏大小，底层应用可操作
                 layoutParams.width = 200;
-                layoutParams.height = 500;
+                layoutParams.height = 600; // 6个按钮 * 100px
                 layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | 
                                     WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL |
                                     WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN;
@@ -253,7 +253,7 @@ public class FloatingWindowService extends Service {
         // 缩小窗口到工具栏大小
         if (layoutParams != null && isFloatingViewVisible) {
             layoutParams.width = 200;
-            layoutParams.height = 500;
+            layoutParams.height = 600; // 6个按钮 * 100px
             windowManager.updateViewLayout(floatingBallView, layoutParams);
             android.util.Log.d("FloatingWindowService", "Window shrunk to toolbar size");
         }
