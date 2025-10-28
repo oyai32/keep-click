@@ -121,12 +121,6 @@ public class FloatingWindowService extends Service {
             }
 
             @Override
-            public void onMoveToolbar(int deltaX, int deltaY) {
-                // 移动工具栏
-                moveToolbar(deltaX, deltaY);
-            }
-
-            @Override
             public void onSelectionModeChanged(boolean selectionMode) {
                 // 更新窗口参数以支持选取模式
                 setSelectionMode(selectionMode);
@@ -180,7 +174,7 @@ public class FloatingWindowService extends Service {
 
         layoutParams = new WindowManager.LayoutParams(
                 200, // 初始化为工具栏宽度
-                700, // 初始化为工具栏高度（7个按钮）
+                600, // 初始化为工具栏高度（6个按钮）
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ?
                         WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY :
                         WindowManager.LayoutParams.TYPE_PHONE,
@@ -213,14 +207,6 @@ public class FloatingWindowService extends Service {
         }
     }
     
-    public void moveToolbar(int deltaX, int deltaY) {
-        if (layoutParams != null && isFloatingViewVisible) {
-            layoutParams.x += deltaX;
-            layoutParams.y += deltaY;
-            windowManager.updateViewLayout(floatingBallView, layoutParams);
-        }
-    }
-    
     public void setSelectionMode(boolean selectionMode) {
         if (layoutParams != null && isFloatingViewVisible) {
             if (selectionMode) {
@@ -233,7 +219,7 @@ public class FloatingWindowService extends Service {
             } else {
                 // 非选取模式：缩小窗口到工具栏大小，底层应用可操作
                 layoutParams.width = 200;
-                layoutParams.height = 700; // 7个按钮 * 100px
+                layoutParams.height = 600; // 6个按钮 * 100px
                 layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | 
                                     WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL |
                                     WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN;

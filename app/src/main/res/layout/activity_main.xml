@@ -8,6 +8,7 @@
     android:background="#F5F5F5"
     tools:context=".MainActivity">
 
+    <!-- 标题 -->
     <TextView
         android:id="@+id/titleText"
         android:layout_width="wrap_content"
@@ -16,33 +17,35 @@
         android:textSize="24sp"
         android:textStyle="bold"
         android:textColor="#333333"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <!-- 副标题 -->
     <TextView
         android:id="@+id/descriptionText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="自动点击工具，支持多位置轮流点击（最多10个）"
-        android:textSize="14sp"
-        android:textColor="#666666"
-        android:gravity="start"
-        android:layout_marginTop="20dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
+        android:text="智能自动点击工具 • 支持多位置轮流点击 • 随机间隔更拟人"
+        android:textSize="13sp"
+        android:textColor="#888888"
+        android:gravity="center"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/titleText" />
 
+    <!-- 按钮组 -->
     <LinearLayout
         android:id="@+id/buttonLayout"
-        android:layout_width="367dp"
-        android:layout_height="64dp"
-        android:layout_marginStart="40dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:layout_marginEnd="40dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -52,7 +55,7 @@
             android:id="@+id/startFloatingButton"
             android:layout_width="0dp"
             android:layout_height="60dp"
-            android:layout_marginEnd="10dp"
+            android:layout_marginEnd="8dp"
             android:layout_weight="1"
             android:background="@drawable/button_start_background"
             android:text="启动浮窗"
@@ -63,7 +66,7 @@
             android:id="@+id/stopFloatingButton"
             android:layout_width="0dp"
             android:layout_height="60dp"
-            android:layout_marginStart="10dp"
+            android:layout_marginStart="8dp"
             android:layout_weight="1"
             android:background="@drawable/button_stop_background"
             android:text="关闭浮窗"
@@ -71,13 +74,14 @@
             android:textSize="16sp" />
     </LinearLayout>
 
+    <!-- 设置标题 -->
     <TextView
         android:id="@+id/settingsTitle"
-        android:layout_width="370dp"
-        android:layout_height="20dp"
-        android:layout_marginStart="40dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="40dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
         android:gravity="start"
         android:text="⚙️ 设置"
         android:textColor="#333333"
@@ -87,29 +91,31 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/buttonLayout" />
 
+    <!-- 间隔设置说明 -->
     <TextView
         android:id="@+id/intervalDescription"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="1. 点击间隔，单位：毫秒(ms)"
-        android:textSize="12sp"
+        android:textSize="13sp"
         android:textColor="#666666"
         android:gravity="start"
-        android:layout_marginTop="10dp"
-        android:layout_marginStart="40dp"
-        android:layout_marginEnd="40dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/settingsTitle" />
 
+    <!-- 间隔输入 -->
     <LinearLayout
         android:id="@+id/intervalInputLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="15dp"
-        android:layout_marginStart="40dp"
-        android:layout_marginEnd="40dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/intervalDescription">
@@ -138,7 +144,7 @@
                 android:textSize="16sp"
                 android:background="@android:drawable/edit_text"
                 android:padding="10dp"
-                android:layout_marginTop="5dp" />
+                android:layout_marginTop="4dp" />
         </LinearLayout>
 
         <TextView
@@ -148,8 +154,8 @@
             android:textSize="20sp"
             android:textColor="#666666"
             android:layout_gravity="center"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="10dp" />
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -175,33 +181,35 @@
                 android:textSize="16sp"
                 android:background="@android:drawable/edit_text"
                 android:padding="10dp"
-                android:layout_marginTop="5dp" />
+                android:layout_marginTop="4dp" />
         </LinearLayout>
     </LinearLayout>
 
+    <!-- 随机距离说明 -->
     <TextView
         android:id="@+id/randomOffsetDescription"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="2. 点击位置随机距离，单位：像素(px)"
-        android:textSize="12sp"
+        android:textSize="13sp"
         android:textColor="#666666"
         android:gravity="start"
-        android:layout_marginTop="15dp"
-        android:layout_marginStart="40dp"
-        android:layout_marginEnd="40dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/intervalInputLayout" />
 
+    <!-- 随机距离输入 -->
     <LinearLayout
         android:id="@+id/randomOffsetInputLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="10dp"
-        android:layout_marginStart="40dp"
-        android:layout_marginEnd="40dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
         android:gravity="center_vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -213,7 +221,7 @@
             android:text="随机半径："
             android:textSize="14sp"
             android:textColor="#666666"
-            android:layout_marginEnd="10dp" />
+            android:layout_marginEnd="8dp" />
 
         <EditText
             android:id="@+id/randomOffsetInput"
@@ -233,9 +241,10 @@
             android:text=" px"
             android:textSize="14sp"
             android:textColor="#666666"
-            android:layout_marginStart="10dp" />
+            android:layout_marginStart="8dp" />
     </LinearLayout>
 
+    <!-- 保存按钮 -->
     <Button
         android:id="@+id/saveIntervalButton"
         android:layout_width="0dp"
@@ -244,44 +253,62 @@
         android:textSize="14sp"
         android:textColor="#FFFFFF"
         android:background="@drawable/button_start_background"
-        android:layout_marginTop="15dp"
-        android:layout_marginStart="40dp"
-        android:layout_marginEnd="40dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/randomOffsetInputLayout" />
 
+    <!-- 当前设置显示 -->
     <TextView
         android:id="@+id/currentIntervalText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="40dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginEnd="40dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
         android:gravity="start"
         android:text="当前点击间隔：150 - 300 ms（随机）\n点击位置随机半径：5 px"
         android:textColor="#4ECDC4"
         android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/saveIntervalButton" />
 
+    <!-- 使用说明标题 -->
+    <TextView
+        android:id="@+id/instructionTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:gravity="start"
+        android:text="📖 使用说明"
+        android:textColor="#333333"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/currentIntervalText" />
+
+    <!-- 使用说明内容 -->
     <TextView
         android:id="@+id/instructionText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="📖 快速上手：\n\n1️⃣ 首次使用：授予悬浮窗和无障碍服务权限\n2️⃣ 选取位置：点击【选取】→ 点击屏幕位置（可选多个，最多10个）\n3️⃣ 开始点击：点击【开始】→ 自动轮流点击所有位置\n4️⃣ 暂停/清空：随时【暂停】或【清空】已选位置\n5️⃣ 移动工具栏：点击【移动】并拖拽\n\n💡 提示：支持随机间隔和位置偏移，更拟人化！"
-        android:textSize="12sp"
-        android:textColor="#999999"
+        android:text="1. 首次使用需授予悬浮窗和无障碍权限\n2. 点击【启动浮窗】开启工具栏\n3. 点击【选取】后，在屏幕上点击要自动点击的位置（最多10个）\n4. 点击【开始】启动自动点击\n5. 点击【暂停】暂停自动点击（仅运行中可用）\n6. 点击【清空】清除所有已选位置\n7. 点击【设置】打开本页面修改参数\n8. 点击【关闭】关闭浮窗工具栏"
+        android:textSize="13sp"
+        android:textColor="#666666"
         android:gravity="start"
-        android:lineSpacingExtra="2dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginBottom="20dp"
+        android:lineSpacingExtra="4dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="24dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/currentIntervalText" />
+        app:layout_constraintTop_toBottomOf="@id/instructionTitle" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

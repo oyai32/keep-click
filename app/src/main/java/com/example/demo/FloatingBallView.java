@@ -27,7 +27,6 @@ public class FloatingBallView extends View {
     private RectF selectButtonRect;
     private RectF startButtonRect;
     private RectF pauseButtonRect;
-    private RectF moveButtonRect;
     private RectF clearButtonRect;
     private RectF settingsButtonRect;
     private RectF closeButtonRect;
@@ -35,7 +34,8 @@ public class FloatingBallView extends View {
     private boolean isSelectionMode = false;
     private boolean isClicking = false;
     private boolean isPaused = false; // 是否处于暂停状态
-    private boolean isDragging = false;
+    
+    // 触摸坐标（用于绘制十字准星）
     private float lastTouchX = 0;
     private float lastTouchY = 0;
     
@@ -69,7 +69,6 @@ public class FloatingBallView extends View {
         void onClose();
         void onPositionSelected(float x, float y);
         void onPositionRemoved(int index);
-        void onMoveToolbar(int deltaX, int deltaY);
         void onSelectionModeChanged(boolean selectionMode);
         void showToast(String message);
         void onClearPositions();
@@ -104,7 +103,6 @@ public class FloatingBallView extends View {
         selectButtonRect = new RectF();
         startButtonRect = new RectF();
         pauseButtonRect = new RectF();
-        moveButtonRect = new RectF();
         clearButtonRect = new RectF();
         settingsButtonRect = new RectF();
         closeButtonRect = new RectF();
@@ -156,10 +154,9 @@ public class FloatingBallView extends View {
     }
     
     private void drawToolbar(Canvas canvas) {
-        // 在选取模式下，工具栏固定在左上角，尺寸为200x600（6个按钮）
-        // 在正常模式下，工具栏占满整个View
+        // 工具栏尺寸
         int toolbarWidth = 200;
-        int toolbarHeight = 700; // 7个按钮 * 100px
+        int toolbarHeight = 600; // 6个按钮 * 100px
         
         // 工具栏背景
         toolbarRect.set(0, 0, toolbarWidth, toolbarHeight);
@@ -173,47 +170,41 @@ public class FloatingBallView extends View {
         int buttonHeight = 100; // 每个按钮100px高
         int buttonWidth = 200;  // 每个按钮200px宽
         
-        // 移动按钮（第1个，最上方）
-        moveButtonRect.set(0, 0, buttonWidth, buttonHeight);
-        buttonPaint.setColor(Color.parseColor(COLOR_DARK_GRAY));
-        canvas.drawRoundRect(moveButtonRect, 4, 4, buttonPaint);
-        canvas.drawText("移动", buttonWidth/2, buttonHeight/2 + 6, textPaint);
-        
-        // 选取按钮（第2个）
-        selectButtonRect.set(0, buttonHeight, buttonWidth, buttonHeight * 2);
+        // 选取按钮（第1个）
+        selectButtonRect.set(0, 0, buttonWidth, buttonHeight);
         buttonPaint.setColor(isSelectionMode ? Color.parseColor(COLOR_BUTTON_ACTIVE) : Color.parseColor(COLOR_BUTTON_DEFAULT));
         canvas.drawRoundRect(selectButtonRect, 4, 4, buttonPaint);
-        canvas.drawText("选取", buttonWidth/2, buttonHeight * 1.5f + 6, textPaint);
+        canvas.drawText("选取", buttonWidth/2, buttonHeight/2 + 6, textPaint);
         
-        // 开始按钮（第3个）
-        startButtonRect.set(0, buttonHeight * 2, buttonWidth, buttonHeight * 3);
+        // 开始按钮（第2个）
+        startButtonRect.set(0, buttonHeight, buttonWidth, buttonHeight * 2);
         buttonPaint.setColor(isClicking ? Color.parseColor(COLOR_BUTTON_ACTIVE) : Color.parseColor(COLOR_BUTTON_DEFAULT));
         canvas.drawRoundRect(startButtonRect, 4, 4, buttonPaint);
-        canvas.drawText("开始", buttonWidth/2, buttonHeight * 2.5f + 6, textPaint);
+        canvas.drawText("开始", buttonWidth/2, buttonHeight * 1.5f + 6, textPaint);
         
-        // 暂停按钮（第4个）
-        pauseButtonRect.set(0, buttonHeight * 3, buttonWidth, buttonHeight * 4);
+        // 暂停按钮（第3个）
+        pauseButtonRect.set(0, buttonHeight * 2, buttonWidth, buttonHeight * 3);
         buttonPaint.setColor(isPaused ? Color.parseColor(COLOR_BUTTON_ACTIVE) : Color.parseColor(COLOR_BUTTON_DEFAULT));
         canvas.drawRoundRect(pauseButtonRect, 4, 4, buttonPaint);
-        canvas.drawText("暂停", buttonWidth/2, buttonHeight * 3.5f + 6, textPaint);
+        canvas.drawText("暂停", buttonWidth/2, buttonHeight * 2.5f + 6, textPaint);
         
-        // 清空按钮（第5个）
-        clearButtonRect.set(0, buttonHeight * 4, buttonWidth, buttonHeight * 5);
+        // 清空按钮（第4个）
+        clearButtonRect.set(0, buttonHeight * 3, buttonWidth, buttonHeight * 4);
         buttonPaint.setColor(Color.parseColor(COLOR_BUTTON_DEFAULT));
         canvas.drawRoundRect(clearButtonRect, 4, 4, buttonPaint);
-        canvas.drawText("清空", buttonWidth/2, buttonHeight * 4.5f + 6, textPaint);
+        canvas.drawText("清空", buttonWidth/2, buttonHeight * 3.5f + 6, textPaint);
         
-        // 设置按钮（第6个，深灰色，和移动按钮颜色一样）
-        settingsButtonRect.set(0, buttonHeight * 5, buttonWidth, buttonHeight * 6);
+        // 设置按钮（第5个，深灰色）
+        settingsButtonRect.set(0, buttonHeight * 4, buttonWidth, buttonHeight * 5);
         buttonPaint.setColor(Color.parseColor(COLOR_DARK_GRAY));
         canvas.drawRoundRect(settingsButtonRect, 4, 4, buttonPaint);
-        canvas.drawText("设置", buttonWidth/2, buttonHeight * 5.5f + 6, textPaint);
+        canvas.drawText("设置", buttonWidth/2, buttonHeight * 4.5f + 6, textPaint);
         
-        // 关闭按钮（第7个，最下方，红色）
-        closeButtonRect.set(0, buttonHeight * 6, buttonWidth, buttonHeight * 7);
+        // 关闭按钮（第6个，最下方，红色）
+        closeButtonRect.set(0, buttonHeight * 5, buttonWidth, buttonHeight * 6);
         buttonPaint.setColor(Color.parseColor(COLOR_RED));
         canvas.drawRoundRect(closeButtonRect, 4, 4, buttonPaint);
-        canvas.drawText("关闭", buttonWidth/2, buttonHeight * 6.5f + 6, textPaint);
+        canvas.drawText("关闭", buttonWidth/2, buttonHeight * 5.5f + 6, textPaint);
     }
     
     private void drawClickPositions(Canvas canvas) {
@@ -277,23 +268,16 @@ public class FloatingBallView extends View {
                 android.util.Log.d("FloatingBallView", "ACTION_DOWN handled: " + handled);
                 return handled;
             case MotionEvent.ACTION_MOVE:
-                if (isDragging) {
-                    handleDrag(x, y);
-                    return true;
-                } else if (isSelectionMode) {
+                if (isSelectionMode) {
                     lastTouchX = x;
                     lastTouchY = y;
                     invalidate(); // 重绘十字准星
                     return true;
                 }
-                // 不在拖拽或选取模式，返回false让事件穿透
+                // 不在选取模式，返回false让事件穿透
                 return false;
             case MotionEvent.ACTION_UP:
-                if (isDragging) {
-                    isDragging = false;
-                    return true;
-                }
-                // 不在拖拽，返回false让事件穿透
+                // 返回false让事件穿透
                 return false;
         }
         return false;
@@ -301,8 +285,8 @@ public class FloatingBallView extends View {
     
     private boolean handleTouchDown(float x, float y) {
         // 始终优先检查工具栏按钮点击
-        // 工具栏固定在左上角200x700区域（7个按钮）
-        if (x >= 0 && x <= 200 && y >= 0 && y <= 700) {
+        // 工具栏固定在左上角200x600区域（6个按钮）
+        if (x >= 0 && x <= 200 && y >= 0 && y <= 600) {
             // 点击在工具栏区域内，尝试处理按钮点击
             boolean handled = handleButtonTouch(x, y);
             if (handled) {
@@ -389,30 +373,11 @@ public class FloatingBallView extends View {
         } else if (settingsButtonRect.contains(x, y)) {
             handleSettingsButtonClick();
             return true;
-        } else if (moveButtonRect.contains(x, y)) {
-            // 移动按钮：短按开始拖拽，长按也拖拽
-            isDragging = true;
-            return true;
         } else if (closeButtonRect.contains(x, y)) {
             handleCloseButtonClick();
             return true;
         }
         return false;
-    }
-    
-    private void handleDrag(float x, float y) {
-        // 计算移动距离
-        float deltaX = x - lastTouchX;
-        float deltaY = y - lastTouchY;
-        
-        // 更新最后触摸位置
-        lastTouchX = x;
-        lastTouchY = y;
-        
-        // 通知父窗口移动工具栏
-        if (listener != null) {
-            listener.onMoveToolbar((int)deltaX, (int)deltaY);
-        }
     }
     
     private boolean isPointInCircle(float px, float py, float cx, float cy, float radius) {
@@ -537,8 +502,8 @@ public class FloatingBallView extends View {
         android.util.Log.d("FloatingBallView", "dispatchTouchEvent: (" + x + "," + y + ") isSelectionMode=" + isSelectionMode);
         
         if (!isSelectionMode) {
-            // 非选取模式：只有工具栏区域（200×700）接收触摸
-            if (x < 0 || x > 200 || y < 0 || y > 700) {
+            // 非选取模式：只有工具栏区域（200×600）接收触摸
+            if (x < 0 || x > 200 || y < 0 || y > 600) {
                 // 工具栏外部，不处理触摸事件
                 android.util.Log.d("FloatingBallView", "Outside toolbar, returning false (should penetrate)");
                 return false;
