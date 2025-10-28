@@ -474,8 +474,22 @@ public class FloatingBallView extends View {
     }
     
     private void handleCloseButtonClick() {
-        // 关闭浮窗
+        // 关闭浮窗前先停止点击和清理状态
         android.util.Log.d("FloatingBallView", "Close button clicked");
+        
+        // 停止点击
+        if (isClicking) {
+            setClicking(false);
+            if (listener != null) {
+                listener.onStopClicking();
+            }
+        }
+        
+        // 清理状态
+        setSelectionMode(false);
+        setPaused(false);
+        
+        // 关闭浮窗
         if (listener != null) {
             listener.onClose();
         }
