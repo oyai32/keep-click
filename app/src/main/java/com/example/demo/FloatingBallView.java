@@ -372,7 +372,8 @@ public class FloatingBallView extends View {
         } else if (startButtonRect.contains(x, y) && !isClicking) {
             handleStartButtonClick();
             return true;
-        } else if (pauseButtonRect.contains(x, y)) {
+        } else if (pauseButtonRect.contains(x, y) && isClicking) {
+            // 只有正在点击时才能点击暂停按钮
             handlePauseButtonClick();
             return true;
         } else if (clearButtonRect.contains(x, y)) {
