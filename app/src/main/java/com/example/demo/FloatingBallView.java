@@ -13,11 +13,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FloatingBallView extends View {
-    private static final String COLOR_BLUE = "#4ECDC4";
     private static final String COLOR_RED = "#FF6B6B";
     private static final String COLOR_GRAY = "#CCCCCC";
     private static final String COLOR_DARK_GRAY = "#95A5A6";
-    private static final String COLOR_ACTIVE_BLUE = "#2196F3";
+    private static final String COLOR_BUTTON_DEFAULT = "#6750A4"; // 按钮默认背景色（紫色）
+    private static final String COLOR_BUTTON_ACTIVE = "#FCC908"; // 按钮选中背景色（青蓝色）
     
     private Paint toolbarPaint;
     private Paint textPaint;
@@ -96,7 +96,6 @@ public class FloatingBallView extends View {
         textPaint.setTextAlign(Paint.Align.CENTER);
         
         buttonPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        buttonPaint.setColor(Color.parseColor(COLOR_BLUE));
         
         circlePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         circlePaint.setColor(Color.parseColor(COLOR_GRAY));
@@ -182,25 +181,25 @@ public class FloatingBallView extends View {
         
         // 选取按钮（第2个）
         selectButtonRect.set(0, buttonHeight, buttonWidth, buttonHeight * 2);
-        buttonPaint.setColor(isSelectionMode ? Color.parseColor(COLOR_ACTIVE_BLUE) : Color.parseColor(COLOR_GRAY));
+        buttonPaint.setColor(isSelectionMode ? Color.parseColor(COLOR_BUTTON_ACTIVE) : Color.parseColor(COLOR_BUTTON_DEFAULT));
         canvas.drawRoundRect(selectButtonRect, 4, 4, buttonPaint);
         canvas.drawText("选取", buttonWidth/2, buttonHeight * 1.5f + 6, textPaint);
         
         // 开始按钮（第3个）
         startButtonRect.set(0, buttonHeight * 2, buttonWidth, buttonHeight * 3);
-        buttonPaint.setColor(isClicking ? Color.parseColor(COLOR_ACTIVE_BLUE) : Color.parseColor(COLOR_GRAY));
+        buttonPaint.setColor(isClicking ? Color.parseColor(COLOR_BUTTON_ACTIVE) : Color.parseColor(COLOR_BUTTON_DEFAULT));
         canvas.drawRoundRect(startButtonRect, 4, 4, buttonPaint);
         canvas.drawText("开始", buttonWidth/2, buttonHeight * 2.5f + 6, textPaint);
         
         // 暂停按钮（第4个）
         pauseButtonRect.set(0, buttonHeight * 3, buttonWidth, buttonHeight * 4);
-        buttonPaint.setColor(isPaused ? Color.parseColor(COLOR_ACTIVE_BLUE) : Color.parseColor(COLOR_GRAY));
+        buttonPaint.setColor(isPaused ? Color.parseColor(COLOR_BUTTON_ACTIVE) : Color.parseColor(COLOR_BUTTON_DEFAULT));
         canvas.drawRoundRect(pauseButtonRect, 4, 4, buttonPaint);
         canvas.drawText("暂停", buttonWidth/2, buttonHeight * 3.5f + 6, textPaint);
         
-        // 清空按钮（第5个，改为普通灰色）
+        // 清空按钮（第5个）
         clearButtonRect.set(0, buttonHeight * 4, buttonWidth, buttonHeight * 5);
-        buttonPaint.setColor(Color.parseColor(COLOR_GRAY));
+        buttonPaint.setColor(Color.parseColor(COLOR_BUTTON_DEFAULT));
         canvas.drawRoundRect(clearButtonRect, 4, 4, buttonPaint);
         canvas.drawText("清空", buttonWidth/2, buttonHeight * 4.5f + 6, textPaint);
         
@@ -274,7 +273,6 @@ public class FloatingBallView extends View {
             case MotionEvent.ACTION_DOWN:
                 lastTouchX = x;
                 lastTouchY = y;
-                lastTouchTime = System.currentTimeMillis();
                 boolean handled = handleTouchDown(x, y);
                 android.util.Log.d("FloatingBallView", "ACTION_DOWN handled: " + handled);
                 return handled;
@@ -401,8 +399,6 @@ public class FloatingBallView extends View {
         }
         return false;
     }
-    
-    private long lastTouchTime = 0;
     
     private void handleDrag(float x, float y) {
         // 计算移动距离
