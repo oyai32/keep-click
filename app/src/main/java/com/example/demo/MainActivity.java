@@ -25,10 +25,16 @@ public class MainActivity extends AppCompatActivity {
     private static final String KEY_MIN_INTERVAL = "min_interval";
     private static final String KEY_MAX_INTERVAL = "max_interval";
     private static final String KEY_RANDOM_OFFSET = "random_offset";
+    private static final String KEY_SCHEDULE_HOUR = "schedule_hour";
+    private static final String KEY_SCHEDULE_MINUTE = "schedule_minute";
+    private static final String KEY_SCHEDULE_SECOND = "schedule_second";
     
     private EditText minIntervalInput;
     private EditText maxIntervalInput;
     private EditText randomOffsetInput;
+    private EditText scheduleHourInput;
+    private EditText scheduleMinuteInput;
+    private EditText scheduleSecondInput;
     private TextView currentIntervalText;
     private SharedPreferences sharedPreferences;
 
@@ -52,6 +58,9 @@ public class MainActivity extends AppCompatActivity {
         minIntervalInput = findViewById(R.id.minIntervalInput);
         maxIntervalInput = findViewById(R.id.maxIntervalInput);
         randomOffsetInput = findViewById(R.id.randomOffsetInput);
+        scheduleHourInput = findViewById(R.id.scheduleHourInput);
+        scheduleMinuteInput = findViewById(R.id.scheduleMinuteInput);
+        scheduleSecondInput = findViewById(R.id.scheduleSecondInput);
         currentIntervalText = findViewById(R.id.currentIntervalText);
 
         startFloatingButton.setOnClickListener(v -> startFloatingWindow());
@@ -60,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
         
         // 加载保存的设置
         loadIntervalSettings();
+        loadScheduleSettings();
     }
 
     private void startFloatingWindow() {
@@ -162,6 +172,18 @@ public class MainActivity extends AppCompatActivity {
         updateCurrentIntervalText(minInterval, maxInterval, randomOffset);
     }
     
+    private void loadScheduleSettings() {
+        int hour = sharedPreferences.getInt(KEY_SCHEDULE_HOUR, -1);
+        int minute = sharedPreferences.getInt(KEY_SCHEDULE_MINUTE, -1);
+        int second = sharedPreferences.getInt(KEY_SCHEDULE_SECOND, -1);
+        
+        if (hour != -1 && minute != -1 && second != -1) {
+            scheduleHourInput.setText(String.format("%02d", hour));
+            scheduleMinuteInput.setText(String.format("%02d", minute));
+            scheduleSecondInput.setText(String.format("%02d", second));
+        }
+    }
+    
     private void saveIntervalSettings() {
         String minStr = minIntervalInput.getText().toString().trim();
         String maxStr = maxIntervalInput.getText().toString().trim();
@@ -208,6 +230,34 @@ public class MainActivity extends AppCompatActivity {
             editor.putLong(KEY_MIN_INTERVAL, minInterval);
             editor.putLong(KEY_MAX_INTERVAL, maxInterval);
             editor.putInt(KEY_RANDOM_OFFSET, randomOffset);
+            
+            // 保存预约时间（如果填写了）
+            String hourStr = scheduleHourInput.getText().toString().trim();
+            String minuteStr = scheduleMinuteInput.getText().toString().trim();
+            String secondStr = scheduleSecondInput.getText().toString().trim();
+            
+            if (!hourStr.isEmpty() && !minuteStr.isEmpty() && !secondStr.isEmpty()) {
+                try {
+                    int hour = Integer.parseInt(hourStr);
+                    int minute = Integer.parseInt(minuteStr);
+                    int second = Integer.parseInt(secondStr);
+                    
+                    // 验证时间
+                    if (hour >= 0 && hour <= 23 && minute >= 0 && minute <= 59 && second >= 0 && second <= 59) {
+                        editor.putInt(KEY_SCHEDULE_HOUR, hour);
+                        editor.putInt(KEY_SCHEDULE_MINUTE, minute);
+                        editor.putInt(KEY_SCHEDULE_SECOND, second);
+                        android.util.Log.d("MainActivity", "Schedule time saved: " + hour + ":" + minute + ":" + second);
+                    } else {
+                        Toast.makeText(this, "预约时间格式错误（时:0-23, 分:0-59, 秒:0-59）", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                } catch (NumberFormatException e) {
+                    Toast.makeText(this, "预约时间必须是数字", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            }
+            
             editor.apply();
             
             // 更新 AutoClickService 的间隔设置

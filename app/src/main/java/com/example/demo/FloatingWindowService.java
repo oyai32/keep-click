@@ -2,8 +2,10 @@ package com.example.demo;
 
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.PixelFormat;
 import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
 import android.provider.Settings;
 import android.view.Gravity;
@@ -11,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
+import java.util.Calendar;
 
 public class FloatingWindowService extends Service {
     private static final String ACTION_SHOW = "show";
@@ -23,11 +26,15 @@ public class FloatingWindowService extends Service {
     private FloatingBallView floatingBallView;
     private boolean isFloatingViewVisible = false;
     private WindowManager.LayoutParams layoutParams;
+    private Handler scheduleHandler = new Handler();
+    private Runnable scheduleCheckRunnable;
+    private SharedPreferences sharedPreferences;
 
     @Override
     public void onCreate() {
         super.onCreate();
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+        sharedPreferences = getSharedPreferences("AutoClickerPrefs", MODE_PRIVATE);
     }
 
     @Override
@@ -152,6 +159,40 @@ public class FloatingWindowService extends Service {
                 mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(mainIntent);
             }
+
+            @Override
+            public void onSchedule() {
+                // 激活预约
+                android.util.Log.d("FloatingWindowService", "onSchedule called");
+                
+                // 读取预约时间设置
+                int hour = sharedPreferences.getInt("schedule_hour", -1);
+                int minute = sharedPreferences.getInt("schedule_minute", -1);
+                int second = sharedPreferences.getInt("schedule_second", -1);
+                
+                // 验证时间
+                if (hour < 0 || hour > 23 || minute < 0 || minute > 59 || second < 0 || second > 59) {
+                    Toast.makeText(FloatingWindowService.this, "请先在应用首页设置有效的预约时间", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                
+                // 启动预约定时检查（需求4）
+                String timeStr = String.format("%02d:%02d:%02d", hour, minute, second);
+                startSchedule(hour, minute, second);
+                
+                // 需求3：激活按钮并显示预约时间
+                floatingBallView.setScheduledTime(timeStr);
+                Toast.makeText(FloatingWindowService.this, "预约成功：" + timeStr, Toast.LENGTH_SHORT).show();
+                android.util.Log.d("FloatingWindowService", "Schedule activated: " + timeStr);
+            }
+
+            @Override
+            public void onCancelSchedule() {
+                // 取消预约
+                android.util.Log.d("FloatingWindowService", "onCancelSchedule called");
+                cancelSchedule();
+                Toast.makeText(FloatingWindowService.this, "已取消预约", Toast.LENGTH_SHORT).show();
+            }
         });
         
         // 设置拖拽监听器
@@ -174,7 +215,7 @@ public class FloatingWindowService extends Service {
 
         layoutParams = new WindowManager.LayoutParams(
                 200, // 初始化为工具栏宽度
-                600, // 初始化为工具栏高度（6个按钮）
+                700, // 初始化为工具栏高度（7个按钮）
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ?
                         WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY :
                         WindowManager.LayoutParams.TYPE_PHONE,
@@ -194,6 +235,7 @@ public class FloatingWindowService extends Service {
 
     private void hideFloatingView() {
         if (floatingBallView != null && isFloatingViewVisible) {
+            cancelSchedule();
             windowManager.removeView(floatingBallView);
             isFloatingViewVisible = false;
         }
@@ -219,7 +261,7 @@ public class FloatingWindowService extends Service {
             } else {
                 // 非选取模式：缩小窗口到工具栏大小，底层应用可操作
                 layoutParams.width = 200;
-                layoutParams.height = 600; // 6个按钮 * 100px
+                layoutParams.height = 700; // 7个按钮 * 100px
                 layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | 
                                     WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL |
                                     WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN;
@@ -277,9 +319,68 @@ public class FloatingWindowService extends Service {
         }, WINDOW_STABLE_DELAY_MS);
     }
     
+    private void startSchedule(int hour, int minute, int second) {
+        // 取消之前的调度
+        cancelSchedule();
+        
+        // 创建定时检查任务
+        scheduleCheckRunnable = new Runnable() {
+            @Override
+            public void run() {
+                Calendar now = Calendar.getInstance();
+                int currentHour = now.get(Calendar.HOUR_OF_DAY);
+                int currentMinute = now.get(Calendar.MINUTE);
+                int currentSecond = now.get(Calendar.SECOND);
+                
+                android.util.Log.d("FloatingWindowService", "Schedule check: current=" + currentHour + ":" + currentMinute + ":" + currentSecond + 
+                                  ", target=" + hour + ":" + minute + ":" + second);
+                
+                // 检查是否到达预约时间
+                if (currentHour == hour && currentMinute == minute && currentSecond == second) {
+                    // 需求4：到达预约时间，相当于点击了开始按钮
+                    android.util.Log.d("FloatingWindowService", "Schedule time reached! Starting auto-click...");
+                    
+                    // 激活开始按钮状态
+                    floatingBallView.setClicking(true);
+                    floatingBallView.setPaused(false);
+                    
+                    // 退出选取模式，进入穿透模式
+                    floatingBallView.setSelectionMode(false);
+                    setSelectionMode(false);
+                    setClickThroughMode(true);
+                    
+                    // 启动自动点击
+                    waitForWindowStableAndStartClicking();
+                    
+                    // 取消预约状态
+                    floatingBallView.setScheduledTime("");
+                    cancelSchedule();
+                    
+                    Toast.makeText(FloatingWindowService.this, "预约时间已到，开始自动点击", Toast.LENGTH_SHORT).show();
+                } else {
+                    // 继续检查（每秒检查一次）
+                    scheduleHandler.postDelayed(this, 1000);
+                }
+            }
+        };
+        
+        // 开始定时检查（每秒检查一次）
+        scheduleHandler.postDelayed(scheduleCheckRunnable, 1000);
+        android.util.Log.d("FloatingWindowService", "Schedule started for " + hour + ":" + minute + ":" + second);
+    }
+    
+    private void cancelSchedule() {
+        if (scheduleCheckRunnable != null) {
+            scheduleHandler.removeCallbacks(scheduleCheckRunnable);
+            scheduleCheckRunnable = null;
+            android.util.Log.d("FloatingWindowService", "Schedule cancelled");
+        }
+    }
+    
     @Override
     public void onDestroy() {
         super.onDestroy();
+        cancelSchedule();
         if (floatingBallView != null && isFloatingViewVisible) {
             windowManager.removeView(floatingBallView);
         }

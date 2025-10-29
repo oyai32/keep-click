@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F5F5"
+    android:fillViewport="true"
+    android:background="#F5F5F5">
+
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
     tools:context=".MainActivity">
 
     <!-- 标题 -->
@@ -244,6 +249,119 @@
             android:layout_marginStart="8dp" />
     </LinearLayout>
 
+    <!-- 预约时间说明 -->
+    <TextView
+        android:id="@+id/scheduleDescription"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="3. 预约自动点击时间（可选，24小时制）"
+        android:textSize="13sp"
+        android:textColor="#666666"
+        android:gravity="start"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/randomOffsetInputLayout" />
+
+    <!-- 预约时间输入 -->
+    <LinearLayout
+        android:id="@+id/scheduleTimeInputLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:gravity="center_vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/scheduleDescription">
+
+        <!-- 时 -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+            <EditText
+                android:id="@+id/scheduleHourInput"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:hint="00"
+                android:inputType="number"
+                android:gravity="center"
+                android:textSize="16sp"
+                android:background="@android:drawable/edit_text"
+                android:padding="10dp"
+                android:layout_marginTop="4dp" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" : "
+            android:textSize="20sp"
+            android:textColor="#666666"
+            android:layout_gravity="center"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp" />
+
+        <!-- 分 -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <EditText
+                android:id="@+id/scheduleMinuteInput"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:hint="00"
+                android:inputType="number"
+                android:gravity="center"
+                android:textSize="16sp"
+                android:background="@android:drawable/edit_text"
+                android:padding="10dp"
+                android:layout_marginTop="4dp" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" : "
+            android:textSize="20sp"
+            android:textColor="#666666"
+            android:layout_gravity="center"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp" />
+
+        <!-- 秒 -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <EditText
+                android:id="@+id/scheduleSecondInput"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:hint="00"
+                android:inputType="number"
+                android:gravity="center"
+                android:textSize="16sp"
+                android:background="@android:drawable/edit_text"
+                android:padding="10dp"
+                android:layout_marginTop="4dp" />
+        </LinearLayout>
+    </LinearLayout>
+
     <!-- 保存按钮 -->
     <Button
         android:id="@+id/saveIntervalButton"
@@ -258,7 +376,7 @@
         android:layout_marginEnd="24dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/randomOffsetInputLayout" />
+        app:layout_constraintTop_toBottomOf="@id/scheduleTimeInputLayout" />
 
     <!-- 当前设置显示 -->
     <TextView
@@ -298,7 +416,7 @@
         android:id="@+id/instructionText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="1. 首次使用需授予悬浮窗和无障碍权限\n2. 点击【启动浮窗】开启工具栏\n3. 点击【选取】后，在屏幕上点击要自动点击的位置（最多10个）\n4. 点击【开始】启动自动点击\n5. 点击【暂停】暂停自动点击（仅运行中可用）\n6. 点击【清空】清除所有已选位置\n7. 点击【设置】打开本页面修改参数\n8. 点击【关闭】关闭浮窗工具栏"
+        android:text="1. 首次使用需授予悬浮窗和无障碍权限\n2. 点击【启动浮窗】开启工具栏\n3. 点击【选取】后，在屏幕上点击要自动点击的位置（最多10个）\n4. 点击【开始】启动自动点击\n5. 点击【暂停】暂停自动点击（仅运行中可用）\n6. 点击【清空】清除所有已选位置\n7. 点击【预约】设置定时自动点击（需先选取位置并在此页面设置预约时间）\n8. 点击【设置】打开本页面修改参数\n9. 点击【关闭】关闭浮窗工具栏"
         android:textSize="13sp"
         android:textColor="#666666"
         android:gravity="start"
@@ -312,3 +430,4 @@
         app:layout_constraintTop_toBottomOf="@id/instructionTitle" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
